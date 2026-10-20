@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diod Interaktif SPM: Pengawal Arus Elektrik</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            800: '#0b1329',
+                            900: '#060b19',
+                            700: '#152243',
+                            600: '#1e305e'
+                        },
+                        neon: {
+                            green: '#10b981',
+                            blue: '#3b82f6',
+                            yellow: '#f59e0b',
+                            red: '#ef4444'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #060b19;
+            color: #f3f4f6;
+        }
+        .glow-green {
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+        }
+        .glow-blue {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+        }
+        .circuit-bg {
+            background-image: radial-gradient(#1e305e 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b1329;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e305e;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3b82f6;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-neon-green selection:text-navy-900">
+
+    <!-- Header / Navbar -->
+    <header class="bg-navy-800 border-b border-navy-600 sticky top-0 z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="showModule('home')">
+                <div class="bg-emerald-500/20 border border-emerald-500 text-emerald-400 p-2 rounded-lg">
+                    <i class="fa-solid fa-bolt text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight text-white tracking-wide">DIOD INTERAKTIF <span class="text-emerald-400">SPM</span></h1>
+                    <p class="text-xs text-gray-400">Pengawal Arus Elektrik • Fizik Tingkatan 5</p>
+                </div>
+            </div>
+            
+            <nav class="hidden lg:flex items-center space-x-1 text-sm font-medium">
+                <button onclick="showModule('modA')" class="nav-btn px-3 py-2 rounded-md hover:bg-navy-700 text-gray-300 hover:text-white transition">Modul A: Kenali</button>
+                <button onclick="showModule('modB')" class="nav-btn px-3 py-2 rounded-md hover:bg-navy-700 text-gray-300 hover:text-white transition">Modul B & C: Makmal Pincang</button>
+                <button onclick="showModule('modD')" class="nav-btn px-3 py-2 rounded-md hover:bg-navy-700 text-gray-300 hover:text-white transition">Modul D: Penerus</button>
+                <button onclick="showModule('modE')" class="nav-btn px-3 py-2 rounded-md hover:bg-navy-700 text-gray-300 hover:text-white transition">Modul E: Cabaran</button>
+                <button onclick="showModule('modF')" class="nav-btn px-3 py-2 rounded-md hover:bg-navy-700 text-gray-300 hover:text-white transition">Modul F: Soalan SPM</button>
+            </nav>
+
+            <div class="flex items-center space-x-2">
+                <button onclick="resetCurrentModule()" class="px-3 py-1.5 text-xs font-semibold bg-navy-700 hover:bg-navy-600 border border-navy-600 text-gray-300 rounded-lg flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-rotate-right"></i> <span class="hidden sm:inline">Ulang Semula</span>
+                </button>
+                <button onclick="toggleMobileMenu()" class="lg:hidden text-gray-300 hover:text-white p-2">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden lg:hidden bg-navy-800 border-b border-navy-600 px-4 pt-2 pb-4 space-y-2">
+            <button onclick="showModule('modA'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-md text-gray-300 hover:bg-navy-700">Modul A: Kenali Diod</button>
+            <button onclick="showModule('modB'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-md text-gray-300 hover:bg-navy-700">Modul B & C: Makmal Pincang</button>
+            <button onclick="showModule('modD'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-md text-gray-300 hover:bg-navy-700">Modul D: Penerus Separuh Gelombang</button>
+            <button onclick="showModule('modE'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-md text-gray-300 hover:bg-navy-700">Modul E: Cabaran Eksperimen</button>
+            <button onclick="showModule('modF'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-md text-gray-300 hover:bg-navy-700">Modul F: Latihan Format SPM</button>
+            <button onclick="showModule('modG'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-md text-gray-300 hover:bg-navy-700">Modul G: Laporan Eksperimen</button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
+
+        <!-- ================= HOME / MENU UTAMA ================= -->
+        <section id="mod-home" class="space-y-8 py-4">
+            <div class="text-center max-w-3xl mx-auto space-y-4">
+                <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-xs font-semibold rounded-full uppercase tracking-wider">
+                    Sistem Pembelajaran Eksperimen Maya Fizik SPM
+                </span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-white">
+                    Kuasai Diod Semikonduktor & Litar Penerus
+                </h2>
+                <p class="text-gray-400 text-base sm:text-lg">
+                    Aplikasi interaktif direka khas untuk calon Fizik SPM (Tingkatan 5) untuk memahami fungsi diod, pincang hadapan, pincang songsang, dan gelombang penerus secara visual.
+                </p>
+                <div class="pt-2 flex flex-wrap justify-center gap-4">
+                    <button onclick="showModule('modA')" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-navy-900 font-bold rounded-xl shadow-lg glow-green transition flex items-center gap-2">
+                        <i class="fa-solid fa-play"></i> Mula Pembelajaran
+                    </button>
+                    <button onclick="showModule('modB')" class="px-6 py-3 bg-navy-700 hover:bg-navy-600 text-white font-semibold rounded-xl border border-navy-600 transition flex items-center gap-2">
+                        <i class="fa-solid fa-flask"></i> Terus ke Makmal Maya
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard Grid Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-6">
+                <!-- Card A -->
+                <div onclick="showModule('modA')" class="bg-navy-800 border border-navy-600 hover:border-emerald-500/50 p-6 rounded-2xl cursor-pointer hover:-translate-y-1 transition duration-200 group shadow-lg">
+                    <div class="w-12 h-12 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl flex items-center justify-center text-xl mb-4 group-hover:bg-emerald-500 group-hover:text-navy-900 transition">
+                        <i class="fa-solid fa-microchip"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Modul A: Kenali Diod</h3>
+                    <p class="text-gray-400 text-sm mb-4">Pelajari simbol, terminal Anod & Katod, fungsi pengaliran satu arah, serta perbezaan a.t. dan a.u.</p>
+                    <span class="text-xs font-semibold text-emerald-400 flex items-center gap-1">Teroka Modul <i class="fa-solid fa-arrow-right text-xs"></i></span>
+                </div>
+
+                <!-- Card B & C -->
+                <div onclick="showModule('modB')" class="bg-navy-800 border border-navy-600 hover:border-blue-500/50 p-6 rounded-2xl cursor-pointer hover:-translate-y-1 transition duration-200 group shadow-lg">
+                    <div class="w-12 h-12 bg-blue-500/10 border border-blue-500/30 text-blue-400 rounded-xl flex items-center justify-center text-xl mb-4 group-hover:bg-blue-500 group-hover:text-navy-900 transition">
+                        <i class="fa-solid fa-arrows-left-right"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Modul B & C: Makmal Pincang</h3>
+                    <p class="text-gray-400 text-sm mb-4">Simulasi litar Pincang Hadapan vs Pincang Songsang. Putar diod 180°, ubah voltan & lihat nyalaan mentol.</p>
+                    <span class="text-xs font-semibold text-blue-400 flex items-center gap-1">Uji Litar <i class="fa-solid fa-arrow-right text-xs"></i></span>
+                </div>
+
+                <!-- Card D -->
+                <div onclick="showModule('modD')" class="bg-navy-800 border border-navy-600 hover:border-amber-500/50 p-6 rounded-2xl cursor-pointer hover:-translate-y-1 transition duration-200 group shadow-lg">
+                    <div class="w-12 h-12 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-xl flex items-center justify-center text-xl mb-4 group-hover:bg-amber-500 group-hover:text-navy-900 transition">
+                        <i class="fa-solid fa-wave-square"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Modul D: Penerus Separuh Gelombang</h3>
+                    <p class="text-gray-400 text-sm mb-4">Eksperimen a.u. ke a.t. berdenyut. Perhatikan graf voltan input dan output secara serentak.</p>
+                    <span class="text-xs font-semibold text-amber-400 flex items-center gap-1">Lihat Gelombang <i class="fa-solid fa-arrow-right text-xs"></i></span>
+                </div>
+
+                <!-- Card E -->
+                <div onclick="showModule('modE')" class="bg-navy-800 border border-navy-600 hover:border-purple-500/50 p-6 rounded-2xl cursor-pointer hover:-translate-y-1 transition duration-200 group shadow-lg">
+                    <div class="w-12 h-12 bg-purple-500/10 border border-purple-500/30 text-purple-400 rounded-xl flex items-center justify-center text-xl mb-4 group-hover:bg-purple-500 group-hover:text-navy-900 transition">
+                        <i class="fa-solid fa-puzzle-piece"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Modul E: Cabaran Eksperimen</h3>
+                    <p class="text-gray-400 text-sm mb-4">Selesaikan 5 tugasan praktikal! Buat ramalan terlebih dahulu sebelum menguji jawapan anda.</p>
+                    <span class="text-xs font-semibold text-purple-400 flex items-center gap-1">Sahut Cabaran <i class="fa-solid fa-arrow-right text-xs"></i></span>
+                </div>
+
+                <!-- Card F -->
+                <div onclick="showModule('modF')" class="bg-navy-800 border border-navy-600 hover:border-rose-500/50 p-6 rounded-2xl cursor-pointer hover:-translate-y-1 transition duration-200 group shadow-lg">
+                    <div class="w-12 h-12 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-xl flex items-center justify-center text-xl mb-4 group-hover:bg-rose-500 group-hover:text-navy-900 transition">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Modul F: Latihan Format SPM</h3>
+                    <p class="text-gray-400 text-sm mb-4">15 soalan merangkumi Objektif, Struktur & Graf. Semakan & markah automatik untuk persediaan SPM.</p>
+                    <span class="text-xs font-semibold text-rose-400 flex items-center gap-1">Mula Ujian <i class="fa-solid fa-arrow-right text-xs"></i></span>
+                </div>
+
+                <!-- Card G -->
+                <div onclick="showModule('modG')" class="bg-navy-800 border border-navy-600 hover:border-teal-500/50 p-6 rounded-2xl cursor-pointer hover:-translate-y-1 transition duration-200 group shadow-lg">
+                    <div class="w-12 h-12 bg-teal-500/10 border border-teal-500/30 text-teal-400 rounded-xl flex items-center justify-center text-xl mb-4 group-hover:bg-teal-500 group-hover:text-navy-900 transition">
+                        <i class="fa-solid fa-file-lines"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Modul G: Laporan Eksperimen</h3>
+                    <p class="text-gray-400 text-sm mb-4">Jana laporan amali Amali Fizik SPM yang mengandungi hipotesis, pemboleh ubah, pemerhatian & kesimpulan.</p>
+                    <span class="text-xs font-semibold text-teal-400 flex items-center gap-1">Jana Laporan <i class="fa-solid fa-arrow-right text-xs"></i></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= MODUL A: KENALI DIOD ================= -->
+        <section id="mod-modA" class="hidden space-y-6">
+            <div class="flex items-center justify-between border-b border-navy-600 pb-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-microchip text-emerald-400"></i> Modul A: Kenali Diod Semikonduktor
+                    </h2>
+                    <p class="text-gray-400 text-sm">Fahami struktur, simbol piawai, terminal, dan konsep asas pengaliran arus.</p>
+                </div>
+                <button onclick="showModule('home')" class="text-xs bg-navy-700 hover:bg-navy-600 px-3 py-1.5 rounded-lg border border-navy-600 transition">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Interactive Symbol & Structure Display -->
+                <div class="lg:col-col-span-7 bg-navy-800 border border-navy-600 rounded-2xl p-6 flex flex-col justify-between circuit-bg">
+                    <h3 class="text-lg font-semibold text-white mb-4">Interaktif Simbol Piawai Diod</h3>
+                    <p class="text-xs text-gray-400 mb-6">Tekan bahagian komponen di bawah untuk melihat penjelasan terperinci:</p>
+
+                    <div class="relative py-12 flex items-center justify-center">
+                        <svg class="w-full max-w-md h-40" viewBox="0 0 400 160">
+                            <!-- Left wire -->
+                            <line x1="20" y1="80" x2="140" y2="80" stroke="#9ca3af" stroke-width="6" stroke-linecap="round"/>
+                            <!-- Right wire -->
+                            <line x1="260" y1="80" x2="380" y2="80" stroke="#9ca3af" stroke-width="6" stroke-linecap="round"/>
+                            
+                            <!-- Arrow Direction Helper -->
+                            <path d="M 60 50 Q 200 20 340 50" fill="none" stroke="#10b981" stroke-width="2" stroke-dasharray="4" />
+                            <polygon points="340,50 330,45 332,55" fill="#10b981" />
+                            <text x="200" y="30" fill="#10b981" font-size="12" text-anchor="middle" font-weight="bold">Arah Arus Benar (Anod ke Katod)</text>
+
+                            <!-- Interactive Anode (Anod) -->
+                            <g onclick="selectDiodPart('anode')" class="cursor-pointer group">
+                                <circle cx="140" cy="80" r="12" fill="#3b82f6" class="transition group-hover:scale-125" />
+                                <text x="140" y="84" fill="#ffffff" font-size="12" font-weight="bold" text-anchor="middle">A</text>
+                                <text x="140" y="115" fill="#3b82f6" font-size="14" font-weight="bold" text-anchor="middle">ANOD (+)</text>
+                            </g>
+
+                            <!-- Diode Symbol Triangle -->
+                            <polygon points="140,40 140,120 240,80" fill="#10b981" class="cursor-pointer hover:opacity-80 transition" onclick="selectDiodPart('body')" />
+
+                            <!-- Diode Symbol Vertical Line (Kathode Bar) -->
+                            <line x1="240" y1="40" x2="240" y2="120" stroke="#ef4444" stroke-width="12" stroke-linecap="round" class="cursor-pointer hover:opacity-80 transition" onclick="selectDiodPart('cathode')" />
+
+                            <!-- Interactive Cathode (Katod) -->
+                            <g onclick="selectDiodPart('cathode')" class="cursor-pointer group">
+                                <circle cx="260" cy="80" r="12" fill="#ef4444" class="transition group-hover:scale-125" />
+                                <text x="260" y="84" fill="#ffffff" font-size="12" font-weight="bold" text-anchor="middle">K</text>
+                                <text x="260" y="115" fill="#ef4444" font-size="14" font-weight="bold" text-anchor="middle">KATOD (-)</text>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <div class="bg-navy-900/80 border border-navy-700 p-4 rounded-xl mt-4">
+                        <div id="diodInfoTitle" class="font-bold text-emerald-400 text-lg mb-1">Klik mana-mana bahagian diod di atas</div>
+                        <p id="diodInfoDesc" class="text-sm text-gray-300">Diod ialah komponen elektronik semikonduktor dengan dua terminal (Anod dan Katod) yang berfungsi sebagai injap satu arah bagi arus elektrik.</p>
+                    </div>
+                </div>
+
+                <!-- Theory & Comparison Card -->
+                <div class="lg:col-span-5 space-y-6">
+                    <!-- Concept Box -->
+                    <div class="bg-navy-800 border border-navy-600 rounded-2xl p-6">
+                        <h3 class="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-circle-info text-blue-400"></i> Fungsi Asas Diod
+                        </h3>
+                        <ul class="space-y-2 text-sm text-gray-300 list-disc list-inside">
+                            <li>Membenarkan arus elektrik mengalir dalam <span class="text-emerald-400 font-semibold">satu arah sahaja</span> (dari Anod ke Katod).</li>
+                            <li>Mempunyai rintangan yang <span class="text-emerald-400 font-semibold">sangat rendah</span> dalam Pincang Hadapan.</li>
+                            <li>Mempunyai rintangan yang <span class="text-rose-400 font-semibold">sangat tinggi</span> dalam Pincang Songsang.</li>
+                            <li>Biasa diperbuat daripada bahan semikonduktor seperti <span class="text-amber-300">Silikon (0.7V)</span> atau <span class="text-amber-300">Germanium (0.3V)</span>.</li>
+                        </ul>
+                    </div>
+
+                    <!-- AC vs DC Box -->
+                    <div class="bg-navy-800 border border-navy-600 rounded-2xl p-6">
+                        <h3 class="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-bolt-lightning text-amber-400"></i> Perbezaan a.t. dan a.u.
+                        </h3>
+                        <div class="grid grid-cols-2 gap-3 text-xs">
+                            <div class="bg-navy-900 border border-navy-700 p-3 rounded-xl">
+                                <div class="font-bold text-amber-400 mb-1">Arus Terus (a.t.)</div>
+                                <p class="text-gray-400">Arus mengalir dalam <strong>satu arah yang tetap</strong> sahaja. Contoh: Bateri, Sel Kering.</p>
+                            </div>
+                            <div class="bg-navy-900 border border-navy-700 p-3 rounded-xl">
+                                <div class="font-bold text-blue-400 mb-1">Arus Ulang-Alik (a.u.)</div>
+                                <p class="text-gray-400">Arah arus dan polariti voltan <strong>sentiasa berubah-ubah</strong> secara berkala. Contoh: Bekalan Domestik.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= MODUL B & C: MAKMAL PINCANG HADAPAN & SONGSANG ================= -->
+        <section id="mod-modB" class="hidden space-y-6">
+            <div class="flex flex-wrap items-center justify-between border-b border-navy-600 pb-4 gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-flask text-blue-400"></i> Modul B & C: Makmal Maya Pincang Diod
+                    </h2>
+                    <p class="text-gray-400 text-sm">Uji tindak balas diod apabila disambungkan dalam keadaan Pincang Hadapan atau Pincang Songsang.</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="setBiasState(true)" id="btnModeForward" class="px-4 py-2 text-xs font-bold rounded-lg bg-emerald-500 text-navy-900 shadow">Pincang Hadapan</button>
+                    <button onclick="setBiasState(false)" id="btnModeReverse" class="px-4 py-2 text-xs font-bold rounded-lg bg-navy-700 text-gray-300 hover:bg-navy-600">Pincang Songsang</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Circuit Canvas Interactive Simulation -->
+                <div class="lg:col-span-8 bg-navy-800 border border-navy-600 rounded-2xl p-6 flex flex-col justify-between circuit-bg relative overflow-hidden">
+                    
+                    <!-- Circuit Status Header -->
+                    <div class="flex items-center justify-between mb-4 bg-navy-900/90 border border-navy-700 p-3 rounded-xl">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-xs font-semibold uppercase text-gray-400">Status Diod:</span>
+                            <span id="circuitStatusBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                                MENGALIR (Pincang Hadapan)
+                            </span>
+                        </div>
+                        <div class="text-xs font-mono text-gray-300">
+                            Model: <span class="text-amber-400">Silikon ($V_D = 0.7\text{V}$)</span>
+                        </div>
+                    </div>
+
+                    <!-- Interactive SVG Circuit Diagram -->
+                    <div class="w-full flex justify-center py-6">
+                        <svg id="circuitSvg" class="w-full max-w-xl h-64" viewBox="0 0 500 280">
+                            <!-- Wires Background -->
+                            <rect x="60" y="40" width="380" height="200" fill="none" stroke="#4b5563" stroke-width="4" rx="10" />
+
+                            <!-- Current Animation Particles Container -->
+                            <g id="currentParticlesGroup"></g>
+
+                            <!-- Battery (Left) -->
+                            <g transform="translate(60, 140)">
+                                <!-- Long line (Positive) -->
+                                <line x1="0" y1="-25" x2="0" y2="25" stroke="#ef4444" stroke-width="5" />
+                                <text x="-15" y="-10" fill="#ef4444" font-size="14" font-weight="bold">+</text>
+                                <!-- Short line (Negative) -->
+                                <line x1="-12" y1="-15" x2="-12" y2="15" stroke="#3b82f6" stroke-width="5" />
+                                <text x="-25" y="-10" fill="#3b82f6" font-size="14" font-weight="bold">-</text>
+                                <text x="-45" y="5" fill="#f3f4f6" font-size="11" font-weight="bold" id="batteryLabelSvg">3.0V</text>
+                            </g>
+
+                            <!-- Switch (Top Wire) -->
+                            <g transform="translate(180, 40)">
+                                <circle cx="0" cy="0" r="5" fill="#f3f4f6" />
+                                <circle cx="50" cy="0" r="5" fill="#f3f4f6" />
+                                <line id="switchArm" x1="0" y1="0" x2="45" y2="-20" stroke="#10b981" stroke-width="4" class="transition-all duration-300" />
+                                <text x="15" y="-25" fill="#9ca3af" font-size="10" font-weight="bold">SUIS</text>
+                            </g>
+
+                            <!-- Resistor R (Top Right) -->
+                            <g transform="translate(320, 40)">
+                                <rect x="-20" y="-10" width="40" height="20" fill="#1e305e" stroke="#9ca3af" stroke-width="2" rx="3"/>
+                                <text x="-12" y="4" fill="#ffffff" font-size="10" font-mono="true">100Ω</text>
+                                <text x="-15" y="-15" fill="#9ca3af" font-size="10" font-weight="bold">Perintang</text>
+                            </g>
+
+                            <!-- Diode (Right Wire) -->
+                            <g id="diodeSvgGroup" transform="translate(440, 140) rotate(90)" class="transition-transform duration-500 cursor-pointer" onclick="toggleDiodeOrientation()">
+                                <line x1="-30" y1="0" x2="30" y2="0" stroke="#10b981" stroke-width="3"/>
+                                <!-- Triangle -->
+                                <polygon id="diodeTriangle" points="-15,-15 -15,15 15,0" fill="#10b981" />
+                                <!-- Vertical Bar -->
+                                <line id="diodeBar" x1="15" y1="-15" x2="15" y2="15" stroke="#ef4444" stroke-width="5" />
+                                <text x="-20" y="30" fill="#f3f4f6" font-size="10" font-weight="bold" transform="rotate(-90)">DIOD</text>
+                            </g>
+
+                            <!-- Bulb (Bottom Wire) -->
+                            <g transform="translate(250, 240)">
+                                <circle id="bulbGlow" cx="0" cy="0" r="25" fill="#f59e0b" opacity="0.1" class="transition-all duration-300" />
+                                <circle cx="0" cy="0" r="16" fill="#152243" stroke="#f3f4f6" stroke-width="2" />
+                                <path d="M -8 -8 L 8 8 M -8 8 L 8 -8" stroke="#f3f4f6" stroke-width="2"/>
+                                <text x="-20" y="32" fill="#9ca3af" font-size="10" font-weight="bold">MENTOL</text>
+                            </g>
+
+                            <!-- Ammeter (Bottom Left) -->
+                            <g transform="translate(140, 240)">
+                                <circle cx="0" cy="0" r="16" fill="#0b1329" stroke="#3b82f6" stroke-width="2" />
+                                <text x="-5" y="4" fill="#3b82f6" font-size="12" font-weight="bold">A</text>
+                                <text x="-20" y="-22" fill="#3b82f6" font-size="10" font-weight="bold" id="ammeterValueSvg">0.00 A</text>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <!-- Controls Dashboard -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-navy-900/90 border border-navy-700 p-4 rounded-xl">
+                        <!-- Switch Toggle Button -->
+                        <div class="flex flex-col justify-center">
+                            <label class="text-xs text-gray-400 font-semibold mb-1">Kawalan Suis</label>
+                            <button id="btnToggleSwitch" onclick="toggleSwitch()" class="w-full py-2 bg-emerald-500 hover:bg-emerald-600 text-navy-900 font-bold rounded-lg text-xs transition">
+                                <i class="fa-solid fa-power-off"></i> HIDUPKAN SUIS
+                            </button>
+                        </div>
+
+                        <!-- Rotate Diode Button -->
+                        <div class="flex flex-col justify-center">
+                            <label class="text-xs text-gray-400 font-semibold mb-1">Orientasi Diod</label>
+                            <button onclick="toggleDiodeOrientation()" class="w-full py-2 bg-navy-700 hover:bg-navy-600 border border-navy-600 text-white font-semibold rounded-lg text-xs transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-rotate"></i> Putar Diod (180°)
+                            </button>
+                        </div>
+
+                        <!-- Voltage Slider -->
+                        <div class="flex flex-col justify-center">
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-gray-400 font-semibold">Voltan ($V_S$):</span>
+                                <span id="voltageValDisplay" class="text-amber-400 font-bold">3.0 V</span>
+                            </div>
+                            <input type="range" id="voltageSlider" min="0" max="9" step="0.5" value="3.0" oninput="updateCircuitParameters()" class="w-full accent-amber-400 cursor-pointer">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Measurements & Explanations Panel -->
+                <div class="lg:col-span-4 space-y-6">
+                    <!-- Live Calculations -->
+                    <div class="bg-navy-800 border border-navy-600 rounded-2xl p-6">
+                        <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-calculator text-emerald-400"></i> Pengiraan Parameter Litar
+                        </h3>
+                        <div class="space-y-3 font-mono text-sm">
+                            <div class="flex justify-between border-b border-navy-700 pb-2">
+                                <span class="text-gray-400">Voltan Bekalan ($V_S$):</span>
+                                <span id="calcVs" class="text-white font-bold">3.00 V</span>
+                            </div>
+                            <div class="flex justify-between border-b border-navy-700 pb-2">
+                                <span class="text-gray-400">Susutan Voltan Diod ($V_D$):</span>
+                                <span id="calcVd" class="text-amber-400 font-bold">0.70 V</span>
+                            </div>
+                            <div class="flex justify-between border-b border-navy-700 pb-2">
+                                <span class="text-gray-400">Voltan Perintang ($V_R$):</span>
+                                <span id="calcVr" class="text-blue-400 font-bold">2.30 V</span>
+                            </div>
+                            <div class="flex justify-between border-b border-navy-700 pb-2">
+                                <span class="text-gray-400">Rintangan Beban ($R$):</span>
+                                <span class="text-white font-bold">100 Ω</span>
+                            </div>
+                            <div class="flex justify-between pt-1 text-base">
+                                <span class="text-emerald-400 font-bold">Arus Litar ($I$):</span>
+                                <span id="calcI" class="text-emerald-400 font-bold">23.0 mA</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Physics Explanation Box -->
+                    <div class="bg-navy-800 border border-navy-600 rounded-2xl p-6">
+                        <h3 class="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-lightbulb text-amber-400"></i> Penerangan Fizik SPM
+                        </h3>
+                        <div id="physicsExplanationText" class="text-sm text-gray-300 leading-relaxed space-y-2">
+                            <!-- Dynamic text based on bias condition -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= MODUL D: PENERUS SEPARUH GELOMBANG ================= -->
+        <section id="mod-modD" class="hidden space-y-6">
+            <div class="flex items-center justify-between border-b border-navy-600 pb-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-wave-square text-amber-400"></i> Modul D: Penerus Separuh Gelombang
+                    </h2>
+                    <p class="text-gray-400 text-sm">Proses penukaran Arus Ulang-Alik (a.u.) kepada Arus Terus (a.t.) berdenyut menggunakan satu diod.</p>
+                </div>
+                <button onclick="showModule('home')" class="text-xs bg-navy-700 hover:bg-navy-600 px-3 py-1.5 rounded-lg border border-navy-600 transition">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Dual Oscilloscope Display -->
+                <div class="lg:col-span-8 bg-navy-800 border border-navy-600 rounded-2xl p-6 flex flex-col justify-between space-y-4 circuit-bg">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-desktop text-emerald-400"></i> Paparan Osiloskop Sinar Katod (OSK)
+                        </h3>
+                        <div class="flex items-center space-x-2">
+                            <button id="btnRunRectifier" onclick="toggleRectifierSimulation()" class="px-4 py-1.5 text-xs font-bold rounded-lg bg-emerald-500 text-navy-900 shadow">
+                                <i class="fa-solid fa-play"></i> MULA
+                            </button>
+                            <button onclick="toggleRectifierDiode()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-navy-700 hover:bg-navy-600 border border-navy-600 text-gray-200">
+                                Terbalikkan Diod
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Canvas Oscilloscope Input/Output -->
+                    <div class="space-y-3">
+                        <!-- Graph A: Input AC -->
+                        <div class="bg-navy-900/90 border border-navy-700 p-3 rounded-xl relative">
+                            <div class="flex justify-between items-center text-xs text-blue-400 font-semibold mb-1">
+                                <span>(A) Graf Voltan Input ($V_{in}$) vs Masa ($t$) - Arus Ulang-Alik (a.u.)</span>
+                                <span id="inputFreqDisplay">5 Hz</span>
+                            </div>
+                            <canvas id="canvasInput" class="w-full h-32 rounded bg-navy-950 border border-navy-800"></canvas>
+                        </div>
+
+                        <!-- Graph B: Output Rectified DC -->
+                        <div class="bg-navy-900/90 border border-navy-700 p-3 rounded-xl relative">
+                            <div class="flex justify-between items-center text-xs text-emerald-400 font-semibold mb-1">
+                                <span>(B) Graf Voltan Output ($V_{out}$) vs Masa ($t$) - Arus Terus Berdenyut</span>
+                                <span id="outputStateDisplay" class="text-emerald-400 font-mono">Diod Normal (Anod Kiri)</span>
+                            </div>
+                            <canvas id="canvasOutput" class="w-full h-32 rounded bg-navy-950 border border-navy-800"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Wave Controls -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-navy-900/90 border border-navy-700 p-4 rounded-xl">
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-gray-400 font-semibold">Frekuensi a.u.:</span>
+                                <span id="freqValText" class="text-blue-400 font-bold">2.0 Hz</span>
+                            </div>
+                            <input type="range" id="freqSlider" min="0.5" max="5.0" step="0.5" value="2.0" oninput="updateRectifierParams()" class="w-full accent-blue-400 cursor-pointer">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-gray-400 font-semibold">Amplitud Voltan ($V_p$):</span>
+                                <span id="ampValText" class="text-emerald-400 font-bold">5.0 V</span>
+                            </div>
+                            <input type="range" id="ampSlider" min="2.0" max="8.0" step="0.5" value="5.0" oninput="updateRectifierParams()" class="w-full accent-emerald-400 cursor-pointer">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Theory & Explanation -->
+                <div class="lg:col-span-4 space-y-6">
+                    <div class="bg-navy-800 border border-navy-600 rounded-2xl p-6">
+                        <h3 class="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-diagram-project text-amber-400"></i> Litar Penerus Separuh Gelombang
+                        </h3>
+                        <p class="text-xs text-gray-300 leading-relaxed mb-4">
+                            Semasa **separuh kitaran positif**, diod berada dalam keadaan **pincang hadapan** dan membenarkan arus mengalir melalui beban.
+                        </p>
+                        <p class="text-xs text-gray-300 leading-relaxed mb-4">
+                            Semasa **separuh kitaran negatif**, diod berada dalam keadaan **pincang songsang** dan menghalang aliran arus.
+                        </p>
+                        <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs text-amber-300">
+                            <strong>Nota SPM Cemerlang:</strong> Output yang terhasil bukan a.t. licin, tetapi dinamakan <strong>Arus Terus Berdenyut</strong>. Kapasitor boleh ditambah selari dengan beban untuk melicinkan gelombang ini.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= MODUL E: CABARAN EKSPERIMEN ================= -->
+        <section id="mod-modE" class="hidden space-y-6">
+            <div class="flex items-center justify-between border-b border-navy-600 pb-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-puzzle-piece text-purple-400"></i> Modul E: Cabaran Eksperimen Interaktif
+                    </h2>
+                    <p class="text-gray-400 text-sm">Buat ramalan fizik anda sebelum menguji litar dalam situasi berikut!</p>
+                </div>
+                <button onclick="showModule('home')" class="text-xs bg-navy-700 hover:bg-navy-600 px-3 py-1.5 rounded-lg border border-navy-600 transition">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali
+                </button>
+            </div>
+
+            <!-- Challenge Stepper / Selector -->
+            <div id="challengeContainer" class="bg-navy-800 border border-navy-600 rounded-2xl p-6 space-y-6">
+                <!-- Dynamic Challenge Content Loaded by JS -->
+            </div>
+        </section>
+
+        <!-- ================= MODUL F: LATIHAN FORMAT SPM ================= -->
+        <section id="mod-modF" class="hidden space-y-6">
+            <div class="flex items-center justify-between border-b border-navy-600 pb-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-graduation-cap text-rose-400"></i> Modul F: Latihan Format SPM (Objektif & Struktur)
+                    </h2>
+                    <p class="text-gray-400 text-sm">Uji kefahaman anda mengikut standard peperiksaan Fizik SPM.</p>
+                </div>
+                <button onclick="showModule('home')" class="text-xs bg-navy-700 hover:bg-navy-600 px-3 py-1.5 rounded-lg border border-navy-600 transition">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali
+                </button>
+            </div>
+
+            <!-- Quiz Container -->
+            <div class="bg-navy-800 border border-navy-600 rounded-2xl p-6 space-y-6">
+                <div id="quizContent" class="space-y-6">
+                    <!-- Questions Rendered by JS -->
+                </div>
+
+                <div class="border-t border-navy-700 pt-6 flex justify-between items-center">
+                    <span id="quizScoreText" class="text-sm font-semibold text-gray-300"></span>
+                    <button onclick="submitQuiz()" class="px-6 py-2.5 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl shadow transition">
+                        <i class="fa-solid fa-check-double"></i> Semak Jawapan & Markah
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= MODUL G: LAPORAN EKSPERIMEN ================= -->
+        <section id="mod-modG" class="hidden space-y-6">
+            <div class="flex items-center justify-between border-b border-navy-600 pb-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-file-lines text-teal-400"></i> Modul G: Laporan Eksperimen Amali SPM
+                    </h2>
+                    <p class="text-gray-400 text-sm">Format laporan rasmi untuk ujian amali dan tugasan eksperimen diod.</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="window.print()" class="text-xs bg-teal-500 hover:bg-teal-600 text-navy-900 font-bold px-3 py-1.5 rounded-lg transition">
+                        <i class="fa-solid fa-print"></i> Cetak Laporan
+                    </button>
+                    <button onclick="showModule('home')" class="text-xs bg-navy-700 hover:bg-navy-600 px-3 py-1.5 rounded-lg border border-navy-600 transition">
+                        <i class="fa-solid fa-arrow-left"></i> Kembali
+                    </button>
+                </div>
+            </div>
+
+            <!-- Report Document -->
+            <div class="bg-navy-800 border border-navy-600 rounded-2xl p-8 space-y-6 text-gray-200 max-w-4xl mx-auto shadow-2xl">
+                <div class="text-center border-b border-navy-600 pb-6">
+                    <h1 class="text-xl font-bold uppercase text-teal-400 tracking-wider">Laporan Eksperimen Amali Fizik SPM</h1>
+                    <h2 class="text-lg font-semibold text-white mt-1">Tajuk: Menyiasat Hubungan Antara Keadaan Pincang Diod dan Pengaliran Arus Elektrik</h2>
+                </div>
+
+                <div class="space-y-4 text-sm">
+                    <div>
+                        <h3 class="font-bold text-teal-400 uppercase text-xs tracking-wider mb-1">1. OBJEKTIF</h3>
+                        <p class="text-gray-300">Menyiasat kesan sambungan terminal diod semikonduktor (Pincang Hadapan dan Pincang Songsang) terhadap pengaliran arus dalam litar elektrik.</p>
+                    </div>
+
+                    <div>
+                        <h3 class="font-bold text-teal-400 uppercase text-xs tracking-wider mb-1">2. HIPOTESIS</h3>
+                        <p class="text-gray-300">Arus elektrik hanya mengalir melalui litar apabila diod disambungkan dalam keadaan **Pincang Hadapan** (Anod ke terminal positif bateri), dan tiada arus mengalir dalam keadaan **Pincang Songsang**.</p>
+                    </div>
+
+                    <div>
+                        <h3 class="font-bold text-teal-400 uppercase text-xs tracking-wider mb-1">3. PEMBOLEH UBAH</h3>
+                        <ul class="list-disc list-inside space-y-1 text-gray-300">
+                            <li><strong>Pemboleh ubah Dimanipulasikan:</strong> Orientasi sambungan diod (Pincang Hadapan / Pincang Songsang).</li>
+                            <li><strong>Pemboleh ubah Bergerak Balas:</strong> Bacaan Ammeter (A) / Nyalaan mentol.</li>
+                            <li><strong>Pemboleh ubah Dimalarkan:</strong> Voltan bekalan bateri (3.0 V) dan nilai perintang beban (100 Ω).</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3 class="font-bold text-teal-400 uppercase text-xs tracking-wider mb-1">4. JADUAL KEPUTUSAN EKSPERIMEN</h3>
+                        <div class="overflow-x-auto mt-2">
+                            <table class="w-full text-left border-collapse border border-navy-600 text-xs">
+                                <thead>
+                                    <tr class="bg-navy-900 text-teal-300">
+                                        <th class="border border-navy-600 p-2">Keadaan Sambungan Diod</th>
+                                        <th class="border border-navy-600 p-2">Sambungan Anod Diod</th>
+                                        <th class="border border-navy-600 p-2">Bacaan Ammeter (mA)</th>
+                                        <th class="border border-navy-600 p-2">Keadaan Mentol</th>
+                                        <th class="border border-navy-600 p-2">Status Pengaliran</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="border border-navy-600 p-2 font-semibold text-emerald-400">Pincang Hadapan</td>
+                                        <td class="border border-navy-600 p-2">Terminal Positif Bateri (+)</td>
+                                        <td class="border border-navy-600 p-2 font-mono">23.0 mA</td>
+                                        <td class="border border-navy-600 p-2">Menyala Terang</td>
+                                        <td class="border border-navy-600 p-2">Mengalir</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-navy-600 p-2 font-semibold text-rose-400">Pincang Songsang</td>
+                                        <td class="border border-navy-600 p-2">Terminal Negatif Bateri (-)</td>
+                                        <td class="border border-navy-600 p-2 font-mono">0.0 mA</td>
+                                        <td class="border border-navy-600 p-2">Tidak Menyala</td>
+                                        <td class="border border-navy-600 p-2">Tidak Mengalir</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="font-bold text-teal-400 uppercase text-xs tracking-wider mb-1">5. KESIMPULAN</h3>
+                        <p class="text-gray-300">Hipotesis diterima. Diod semikonduktor bertindak sebagai pengawal arus elektrik yang membenarkan arus mengalir dalam satu arah sahaja apabila dalam keadaan pincang hadapan.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SKRIN PENUTUP ================= -->
+        <section id="mod-summary" class="hidden space-y-6 text-center py-12">
+            <div class="max-w-2xl mx-auto bg-navy-800 border border-navy-600 rounded-2xl p-8 space-y-6 shadow-2xl">
+                <div class="w-16 h-16 bg-emerald-500/20 text-emerald-400 border border-emerald-500 rounded-full flex items-center justify-center text-3xl mx-auto">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <h2 class="text-2xl font-extrabold text-white">Tahniah! Anda telah Mempelajari Diod SPM</h2>
+                <blockquote class="text-sm text-gray-300 italic border-l-4 border-emerald-500 pl-4 text-left bg-navy-900/50 p-3 rounded">
+                    “Diod membenarkan arus mengalir dalam satu arah dalam keadaan operasi biasa. Dalam litar penerus separuh gelombang, diod digunakan untuk menukarkan a.u. kepada a.t. berdenyut.”
+                </blockquote>
+                <div class="flex flex-wrap justify-center gap-4 pt-4">
+                    <button onclick="showModule('modA')" class="px-5 py-2.5 bg-navy-700 hover:bg-navy-600 text-white font-semibold rounded-xl border border-navy-600 text-sm transition">
+                        <i class="fa-solid fa-rotate-left"></i> Ulang Kaji
+                    </button>
+                    <button onclick="showModule('modB')" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl text-sm transition">
+                        <i class="fa-solid fa-flask"></i> Cuba Lagi Makmal
+                    </button>
+                    <button onclick="showModule('modF')" class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-navy-900 font-bold rounded-xl shadow text-sm transition">
+                        <i class="fa-solid fa-pen-to-square"></i> Ujian SPM
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-navy-800 border-t border-navy-600 py-6 text-center text-xs text-gray-400">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>© 2026 Aplikasi Pembelajaran Interaktif Fizik SPM Malaysia • Diod Semikonduktor & Litar Penerus</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // State Management
+        let currentModule = 'home';
+        
+        // Circuit B & C State
+        let circuitState = {
+            switchOn: true,
+            isForwardBias: true,
+            supplyVoltage: 3.0, // Volts
+            diodeVdrop: 0.7, // Silikon Diode Forward Voltage Drop
+            resistorR: 100, // Ohms
+            currentAnimId: null
+        };
+
+        // Rectifier Mod D State
+        let rectifierState = {
+            isRunning: true,
+            freq: 2.0,
+            amplitude: 5.0,
+            diodeNormal: true, // true = anode on left, passes positive wave
+            time: 0,
+            animId: null
+        };
+
+        function showModule(modId) {
+            currentModule = modId;
+            const modules = ['home', 'modA', 'modB', 'modD', 'modE', 'modF', 'modG', 'summary'];
+            modules.forEach(m => {
+                const el = document.getElementById('mod-' + m);
+                if (el) el.classList.add('hidden');
+            });
+
+            const target = document.getElementById('mod-' + modId);
+            if (target) target.classList.remove('hidden');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Initialize specific module logic
+            if (modId === 'modB') {
+                updateCircuitParameters();
+            } else if (modId === 'modD') {
+                initRectifierCanvas();
+            } else if (modId === 'modE') {
+                loadChallenge(0);
+            } else if (modId === 'modF') {
+                renderQuiz();
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        function resetCurrentModule() {
+            if (currentModule === 'modB') {
+                circuitState.switchOn = true;
+                circuitState.isForwardBias = true;
+                circuitState.supplyVoltage = 3.0;
+                document.getElementById('voltageSlider').value = 3.0;
+                updateCircuitParameters();
+            } else if (currentModule === 'modD') {
+                rectifierState.freq = 2.0;
+                rectifierState.amplitude = 5.0;
+                rectifierState.diodeNormal = true;
+                document.getElementById('freqSlider').value = 2.0;
+                document.getElementById('ampSlider').value = 5.0;
+                updateRectifierParams();
+            } else {
+                showModule(currentModule);
+            }
+        }
+
+        function selectDiodPart(part) {
+            const titleEl = document.getElementById('diodInfoTitle');
+            const descEl = document.getElementById('diodInfoDesc');
+
+            if (part === 'anode') {
+                titleEl.textContent = 'ANOD (Terminal Positif / Layer P)';
+                titleEl.className = 'font-bold text-blue-400 text-lg mb-1';
+                descEl.textContent = 'Terminal Anod disambungkan kepada bahan semikonduktor jenis-P. Apabila Anod disambung ke terminal positif bateri, diod berada dalam pincang hadapan.';
+            } else if (part === 'cathode') {
+                titleEl.textContent = 'KATOD (Terminal Negatif / Layer N)';
+                titleEl.className = 'font-bold text-rose-400 text-lg mb-1';
+                descEl.textContent = 'Terminal Katod (ditandai dengan garisan pada komponen fizikal) disambungkan kepada bahan semikonduktor jenis-N.';
+            } else if (part === 'body') {
+                titleEl.textContent = 'SIMBOL & FUNGSI DIOD';
+                titleEl.className = 'font-bold text-emerald-400 text-lg mb-1';
+                descEl.textContent = 'Anak panah pada simbol diod menunjukkan arah aliran arus konvensional yang dibenarkan (dari Anod ke Katod sahaja).';
+            }
+        }
+
+        function setBiasState(isForward) {
+            circuitState.isForwardBias = isForward;
+            const btnF = document.getElementById('btnModeForward');
+            const btnR = document.getElementById('btnModeReverse');
+
+            if (isForward) {
+                btnF.className = 'px-4 py-2 text-xs font-bold rounded-lg bg-emerald-500 text-navy-900 shadow';
+                btnR.className = 'px-4 py-2 text-xs font-bold rounded-lg bg-navy-700 text-gray-300 hover:bg-navy-600';
+            } else {
+                btnR.className = 'px-4 py-2 text-xs font-bold rounded-lg bg-rose-500 text-white shadow';
+                btnF.className = 'px-4 py-2 text-xs font-bold rounded-lg bg-navy-700 text-gray-300 hover:bg-navy-600';
+            }
+            updateCircuitParameters();
+        }
+
+        function toggleDiodeOrientation() {
+            setBiasState(!circuitState.isForwardBias);
+        }
+
+        function toggleSwitch() {
+            circuitState.switchOn = !circuitState.switchOn;
+            const btn = document.getElementById('btnToggleSwitch');
+            if (circuitState.switchOn) {
+                btn.className = 'w-full py-2 bg-emerald-500 hover:bg-emerald-600 text-navy-900 font-bold rounded-lg text-xs transition';
+                btn.innerHTML = '<i class="fa-solid fa-power-off"></i> MATIKAN SUIS';
+            } else {
+                btn.className = 'w-full py-2 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-lg text-xs transition';
+                btn.innerHTML = '<i class="fa-solid fa-power-off"></i> HIDUPKAN SUIS';
+            }
+            updateCircuitParameters();
+        }
+
+        function updateCircuitParameters() {
+            const sliderVal = parseFloat(document.getElementById('voltageSlider').value);
+            circuitState.supplyVoltage = sliderVal;
+            document.getElementById('voltageValDisplay').textContent = sliderVal.toFixed(1) + ' V';
+            document.getElementById('batteryLabelSvg').textContent = sliderVal.toFixed(1) + 'V';
+
+            // SVG Switch Arm Angle
+            const switchArm = document.getElementById('switchArm');
+            if (circuitState.switchOn) {
+                switchArm.setAttribute('x2', '50');
+                switchArm.setAttribute('y2', '0');
+            } else {
+                switchArm.setAttribute('x2', '45');
+                switchArm.setAttribute('y2', '-20');
+            }
+
+            // SVG Diode Rotation
+            const diodeGroup = document.getElementById('diodeSvgGroup');
+            if (circuitState.isForwardBias) {
+                diodeGroup.setAttribute('transform', 'translate(440, 140) rotate(90)');
+            } else {
+                diodeGroup.setAttribute('transform', 'translate(440, 140) rotate(-90)');
+            }
+
+            // Physics Logic Calculation
+            let current_mA = 0;
+            let vDiode = 0;
+            let vResistor = 0;
+            let isConducting = false;
+
+            if (circuitState.switchOn) {
+                if (circuitState.isForwardBias) {
+                    if (circuitState.supplyVoltage > circuitState.diodeVdrop) {
+                        isConducting = true;
+                        vDiode = circuitState.diodeVdrop;
+                        vResistor = circuitState.supplyVoltage - vDiode;
+                        current_mA = (vResistor / circuitState.resistorR) * 1000;
+                    } else {
+                        vDiode = circuitState.supplyVoltage;
+                    }
+                } else {
+                    // Reverse bias: Ideal diode blocks completely
+                    vDiode = circuitState.supplyVoltage;
+                    vResistor = 0;
+                    current_mA = 0;
+                }
+            }
+
+            // Update UI Labels
+            document.getElementById('calcVs').textContent = circuitState.supplyVoltage.toFixed(2) + ' V';
+            document.getElementById('calcVd').textContent = vDiode.toFixed(2) + ' V';
+            document.getElementById('calcVr').textContent = vResistor.toFixed(2) + ' V';
+            document.getElementById('calcI').textContent = current_mA.toFixed(1) + ' mA';
+            document.getElementById('ammeterValueSvg').textContent = (current_mA / 1000).toFixed(3) + ' A';
+
+            // Bulb Glow
+            const bulbGlow = document.getElementById('bulbGlow');
+            if (isConducting) {
+                const brightness = Math.min(1.0, current_mA / 50.0);
+                bulbGlow.setAttribute('opacity', brightness.toString());
+                bulbGlow.setAttribute('fill', '#f59e0b');
+            } else {
+                bulbGlow.setAttribute('opacity', '0.1');
+            }
+
+            // Update Status Badge & Physics Explanation
+            const badge = document.getElementById('circuitStatusBadge');
+            const expText = document.getElementById('physicsExplanationText');
+
+            if (!circuitState.switchOn) {
+                badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-gray-500/20 text-gray-400 border border-gray-500/40';
+                badge.textContent = 'LITAR TERBUKA (Suis Dimatikan)';
+                expText.innerHTML = 'Litar adalah terbuka. Tiada beza keupayaan dikenakan pada komponen, maka tiada arus mengalir.';
+            } else if (circuitState.isForwardBias) {
+                if (isConducting) {
+                    badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40';
+                    badge.textContent = 'MENGALIR (Pincang Hadapan)';
+                    expText.innerHTML = `<strong>PINCANG HADAPAN:</strong> Anod diod disambungkan ke terminal positif bateri. Lapisan susutan menjadi nipis dan rintangan diod menjadi sangat rendah. Arus mengalir kerana voltan bekalan (${circuitState.supplyVoltage.toFixed(1)}V) melebihi voltan simpang silikon (0.7V).`;
+                } else {
+                    badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-400 border border-amber-500/40';
+                    badge.textContent = 'TIDAK MENGALIR ($V_S < 0.7\text{V}$)';
+                    expText.innerHTML = `Voltan bekalan (${circuitState.supplyVoltage.toFixed(1)}V) adalah kurang daripada voltan simpang minimum diod silikon (0.7V). Diod belum mengatasi halangan keupayaan simpang.`;
+                }
+            } else {
+                badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/40';
+                badge.textContent = 'TIDAK MENGALIR (Pincang Songsang)';
+                expText.innerHTML = `<strong>PINCANG SONGSANG:</strong> Anod diod disambungkan ke terminal negatif bateri. Lapisan susutan menjadi sangat tebal dan rintangan diod bertambah menjadi sangat tinggi. Diod menghalang pengaliran arus konvensional.`;
+            }
+
+            // Animate Electrons/Current
+            drawCurrentParticles(isConducting);
+        }
+
+        function drawCurrentParticles(isConducting) {
+            const g = document.getElementById('currentParticlesGroup');
+            g.innerHTML = '';
+            if (!isConducting) return;
+
+            // Simple SVG dots representing current
+            const points = [
+                {x: 60, y: 100}, {x: 60, y: 60}, {x: 120, y: 40}, {x: 240, y: 40}, 
+                {x: 380, y: 40}, {x: 440, y: 80}, {x: 440, y: 180}, {x: 350, y: 240},
+                {x: 200, y: 240}, {x: 60, y: 200}
+            ];
+
+            points.forEach((p, index) => {
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', p.x);
+                circle.setAttribute('cy', p.y);
+                circle.setAttribute('r', '4');
+                circle.setAttribute('fill', '#10b981');
+                circle.setAttribute('class', 'animate-ping');
+                g.appendChild(circle);
+            });
+        }
+
+        function initRectifierCanvas() {
+            updateRectifierParams();
+            if (!rectifierState.animId) {
+                animateRectifier();
+            }
+        }
+
+        function updateRectifierParams() {
+            rectifierState.freq = parseFloat(document.getElementById('freqSlider').value);
+            rectifierState.amplitude = parseFloat(document.getElementById('ampSlider').value);
+            document.getElementById('freqValText').textContent = rectifierState.freq.toFixed(1) + ' Hz';
+            document.getElementById('ampValText').textContent = rectifierState.amplitude.toFixed(1) + ' V';
+            document.getElementById('inputFreqDisplay').textContent = rectifierState.freq.toFixed(1) + ' Hz';
+        }
+
+        function toggleRectifierSimulation() {
+            rectifierState.isRunning = !rectifierState.isRunning;
+            const btn = document.getElementById('btnRunRectifier');
+            if (rectifierState.isRunning) {
+                btn.className = 'px-4 py-1.5 text-xs font-bold rounded-lg bg-emerald-500 text-navy-900 shadow';
+                btn.innerHTML = '<i class="fa-solid fa-pause"></i> HENTI';
+            } else {
+                btn.className = 'px-4 py-1.5 text-xs font-bold rounded-lg bg-amber-500 text-navy-900 shadow';
+                btn.innerHTML = '<i class="fa-solid fa-play"></i> MULA';
+            }
+        }
+
+        function toggleRectifierDiode() {
+            rectifierState.diodeNormal = !rectifierState.diodeNormal;
+            const stateDisplay = document.getElementById('outputStateDisplay');
+            if (rectifierState.diodeNormal) {
+                stateDisplay.textContent = 'Diod Normal (Anod Kiri)';
+                stateDisplay.className = 'text-emerald-400 font-mono';
+            } else {
+                stateDisplay.textContent = 'Diod Diterbalikkan (Katod Kiri)';
+                stateDisplay.className = 'text-rose-400 font-mono';
+            }
+        }
+
+        function animateRectifier() {
+            if (rectifierState.isRunning) {
+                rectifierState.time += 0.03;
+            }
+
+            drawOscilloscope('canvasInput', true);
+            drawOscilloscope('canvasOutput', false);
+
+            rectifierState.animId = requestAnimationFrame(animateRectifier);
+        }
+
+        function drawOscilloscope(canvasId, isInput) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width = canvas.clientWidth;
+            const height = canvas.height = canvas.clientHeight;
+
+            const midY = height / 2;
+            const scaleY = (height / 2.5) / 8.0; // scale 8V max
+
+            ctx.clearRect(0, 0, width, height);
+
+            <!-- Grid Lines -->
+            ctx.strokeStyle = '#152243';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, midY); ctx.lineTo(width, midY); // Center Axis
+            for (let x = 0; x < width; x += 30) {
+                ctx.moveTo(x, 0); ctx.lineTo(x, height);
+            }
+            ctx.stroke();
+
+            <!-- Draw Waveform -->
+            ctx.beginPath();
+            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = isInput ? '#3b82f6' : '#10b981';
+
+            for (let x = 0; x < width; x++) {
+                const t = (x / width) * 4 * Math.PI + rectifierState.time * rectifierState.freq * 2;
+                let vIn = Math.sin(t) * rectifierState.amplitude;
+                let vPlot = 0;
+
+                if (isInput) {
+                    vPlot = vIn;
+                } else {
+                    // Rectified output
+                    if (rectifierState.diodeNormal) {
+                        // Conducts during positive half
+                        vPlot = vIn > 0.7 ? (vIn - 0.7) : 0;
+                    } else {
+                        // Conducts during negative half (inverted diode)
+                        vPlot = vIn < -0.7 ? (vIn + 0.7) : 0;
+                    }
+                }
+
+                const y = midY - (vPlot * scaleY);
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        }
+
+        const challenges = [
+            {
+                title: "Tugasan 1: Pasang Diod Supaya Mentol Menyala",
+                desc: "Di bawah diberi litar ringkas. Pilih orientasi diod yang betul supaya mentol dapat dinyalakan oleh bateri a.t.",
+                options: [
+                    { id: 'fwd', text: 'Anod disambung ke Terminal Positif Bateri (+)', correct: true },
+                    { id: 'rev', text: 'Katod disambung ke Terminal Positif Bateri (+)', correct: false }
+                ],
+                explanation: "Untuk pincang hadapan, Anod (+) diod mesti disambung ke terminal positif (+) bekalan kuasa."
+            },
+            {
+                title: "Tugasan 2: Terbalikkan Diod dan Ramalkan Keadaan Mentol",
+                desc: "Jika diod diterbalikkan 180° daripada keadaan pincang hadapan, apakah yang akan berlaku kepada nyalaan mentol?",
+                options: [
+                    { id: 'off', text: 'Mentol terpadam kerana diod dalam pincang songsang', correct: true },
+                    { id: 'on', text: 'Mentol menyala lebih terang', correct: false }
+                ],
+                explanation: "Apabila diod diterbalikkan, ia berada dalam pincang songsang. Diod mempunyai rintangan yang sangat tinggi dan menghalang arus."
+            },
+            {
+                title: "Tugasan 3: Tentukan Terminal Anod & Katod",
+                desc: "Berdasarkan simbol piawai diod (segitiga dan garisan tegak), bahagian siapakah yang diwakili oleh garisan tegak?",
+                options: [
+                    { id: 'k', text: 'Katod (-)', correct: true },
+                    { id: 'a', text: 'Anod (+)', correct: false }
+                ],
+                explanation: "Garisan tegak pada simbol diod mewakili Katod (Terminal Negatif)."
+            },
+            {
+                title: "Tugasan 4: Keadaan Pincang Bekalan Arus Ulang-Alik",
+                desc: "Apakah yang berlaku kepada diod apabila disambungkan kepada sumber Arus Ulang-Alik (a.u.)?",
+                options: [
+                    { id: 'rect', text: 'Diod bergilir-gilir antara pincang hadapan dan pincang songsang', correct: true },
+                    { id: 'always', text: 'Diod sentiasa berada dalam pincang hadapan', correct: false }
+                ],
+                explanation: "Sebab arah voltan a.u. sentiasa berubah, diod hanya membenarkan separuh daripada kitaran gelombang melaluinya."
+            },
+            {
+                title: "Tugasan 5: Bentuk Graf Output Penerus Separuh Gelombang",
+                desc: "Apakah bentuk gelombang voltan output bagi litar penerus separuh gelombang?",
+                options: [
+                    { id: 'pulsing', text: 'Arus Terus Berdenyut (Separuh gelombang positif sahaja)', correct: true },
+                    { id: 'smooth', text: 'Arus Terus Licin Sempurna tanpa sebarang denyutan', correct: false }
+                ],
+                explanation: "Litar penerus separuh gelombang menghasilkan Arus Terus Berdenyut. Perlu kapasitor untuk melicinkannya."
+            }
+        ];
+
+        let currentChallengeIdx = 0;
+
+        function loadChallenge(idx) {
+            currentChallengeIdx = idx;
+            const c = challenges[idx];
+            const container = document.getElementById('challengeContainer');
+
+            container.innerHTML = `
+                <div class="flex items-center justify-between border-b border-navy-700 pb-3">
+                    <span class="text-xs font-bold uppercase tracking-wider text-purple-400">Cabaran ${idx + 1} daripada ${challenges.length}</span>
+                    <span class="text-xs text-gray-400">Eksperimen Interaktif</span>
+                </div>
+                <h3 class="text-xl font-bold text-white">${c.title}</h3>
+                <p class="text-sm text-gray-300 leading-relaxed">${c.desc}</p>
+
+                <div class="space-y-3 pt-2">
+                    <p class="text-xs font-semibold text-gray-400">Pilih Ramalan Anda:</p>
+                    ${c.options.map(opt => `
+                        <label class="flex items-center space-x-3 p-3 bg-navy-900 border border-navy-700 rounded-xl cursor-pointer hover:border-purple-500/50 transition">
+                            <input type="radio" name="challengeOpt" value="${opt.id}" class="accent-purple-500">
+                            <span class="text-sm text-gray-200">${opt.text}</span>
+                        </label>
+                    `).join('')}
+                </div>
+
+                <div class="pt-4 flex items-center justify-between">
+                    <button onclick="testChallengeAnswer()" class="px-5 py-2 bg-purple-500 hover:bg-purple-600 text-white font-bold rounded-xl text-xs transition">
+                        <i class="fa-solid fa-flask"></i> UJI EKSPERIMEN
+                    </button>
+                    <span id="challengeFeedback" class="text-xs font-semibold"></span>
+                </div>
+
+                <div id="challengeExplBox" class="hidden p-4 bg-navy-900/80 border border-navy-700 rounded-xl text-xs text-gray-300 space-y-1">
+                    <strong class="text-emerald-400">Sebab Saintifik Fizik:</strong>
+                    <p>${c.explanation}</p>
+                </div>
+
+                <div class="flex justify-between pt-4 border-t border-navy-700">
+                    <button ${idx === 0 ? 'disabled' : ''} onclick="loadChallenge(${idx - 1})" class="px-3 py-1.5 text-xs bg-navy-700 hover:bg-navy-600 disabled:opacity-50 text-white rounded-lg">Cabaran Sebelum</button>
+                    <button ${idx === challenges.length - 1 ? 'disabled' : ''} onclick="loadChallenge(${idx + 1})" class="px-3 py-1.5 text-xs bg-navy-700 hover:bg-navy-600 disabled:opacity-50 text-white rounded-lg">Cabaran Seterusnya</button>
+                </div>
+            `;
+        }
+
+        function testChallengeAnswer() {
+            const selected = document.querySelector('input[name="challengeOpt"]:checked');
+            const feedback = document.getElementById('challengeFeedback');
+            const explBox = document.getElementById('challengeExplBox');
+
+            if (!selected) {
+                feedback.textContent = 'Sila pilih satu ramalan dahulu!';
+                feedback.className = 'text-xs font-semibold text-amber-400';
+                return;
+            }
+
+            const c = challenges[currentChallengeIdx];
+            const isCorrect = c.options.find(o => o.id === selected.value).correct;
+
+            if (isCorrect) {
+                feedback.textContent = 'TAHNIAH! Ramalan anda BENAR secara fizik.';
+                feedback.className = 'text-xs font-semibold text-emerald-400';
+            } else {
+                feedback.textContent = 'RAMALAN KURANG TEPAT. Lihat penjelasan di bawah.';
+                feedback.className = 'text-xs font-semibold text-rose-400';
+            }
+            explBox.classList.remove('hidden');
+        }
+
+        const quizQuestions = [
+            // 10 MCQ
+            {
+                type: 'mcq',
+                q: '1. Apakah fungsi utama diod semikonduktor dalam litar elektrik?',
+                opts: ['Menyimpan cas elektrik', 'Membenarkan arus mengalir dalam satu arah sahaja', 'Meningkatkan voltan bekalan', 'Menukarkan arus terus kepada arus ulang-alik'],
+                ans: 1,
+                exp: 'Diod bertindak sebagai injap satu arah bagi arus elektrik.'
+            },
+            {
+                type: 'mcq',
+                q: '2. Apakah keadaan sambungan diod apabila Anod disambung ke terminal positif bateri?',
+                opts: ['Pincang Songsang', 'Pincang Hadapan', 'Litar Pintas', 'Kapasitif'],
+                ans: 1,
+                exp: 'Anod (+) ke Positif (+) bateri merupakan Pincang Hadapan.'
+            },
+            {
+                type: 'mcq',
+                q: '3. Berapakah voltan susutan minimum (voltan simpang) bagi diod silikon untuk mengalirkan arus?',
+                opts: ['0.1 V', '0.3 V', '0.7 V', '2.0 V'],
+                ans: 2,
+                exp: 'Diod silikon memerlukan sekurang-kurangnya 0.7V bagi mengatasi lapisan susutan.'
+            },
+            {
+                type: 'mcq',
+                q: '4. Dalam keadaan pincang songsang, apakah yang berlaku kepada lapisan susutan diod?',
+                opts: ['Menjadi nipis', 'Menjadi semakin tebal', 'Hilang sepenuhnya', 'Menjana elektron bebas'],
+                ans: 1,
+                exp: 'Pincang songsang menolak pembawa cas menjauhi simpang, menebalkan lapisan susutan.'
+            },
+            {
+                type: 'mcq',
+                q: '5. Proses menukarkan Arus Ulang-Alik (a.u.) kepada Arus Terus (a.t.) dinamakan:',
+                opts: ['Aplikasi Tranformer', 'Penerusan (Rectification)', 'Pancaran Termion', 'Aruhan Elektromagnet'],
+                ans: 1,
+                exp: 'Penukaran a.u. ke a.t. dipanggil proses Penerusan.'
+            },
+            {
+                type: 'mcq',
+                q: '6. Berapakah bilangan diod yang diperlukan untuk membina litar Penerus Separuh Gelombang?',
+                opts: ['1 Diod', '2 Diod', '4 Diod', '6 Diod'],
+                ans: 0,
+                exp: 'Penerus separuh gelombang hanya memerlukan 1 diod sahaja.'
+            },
+            {
+                type: 'mcq',
+                q: '7. Apakah bentuk output gelombang voltan daripada penerus separuh gelombang tanpa kapasitor?',
+                opts: ['Arus Terus Licin', 'Arus Terus Berdenyut', 'Gelombang Sinus Penuh a.u.', 'Garis Lurus Sifar'],
+                ans: 1,
+                exp: 'Output penerus separuh gelombang ialah Arus Terus Berdenyut.'
+            },
+            {
+                type: 'mcq',
+                q: '8. Bahan apakah yang biasa digunakan untuk membuat diod semikonduktor?',
+                opts: ['Kupon Kuprum', 'Silikon / Germanium', 'Plastik Polimer', 'Tungsten'],
+                ans: 1,
+                exp: 'Silikon dan Germanium merupakan bahan semikonduktor utama.'
+            },
+            {
+                type: 'mcq',
+                q: '9. Apakah peranti yang boleh digunakan untuk melicinkan gelombang voltan output penerus?',
+                opts: ['Perintang Variable', 'Kapasitor', 'Suis Dua Arah', 'Suis Reled'],
+                ans: 1,
+                exp: 'Kapasitor bertindak menyimpan dan membebaskan cas untuk melicinkan denyutan voltan.'
+            },
+            {
+                type: 'mcq',
+                q: '10. Apabila ammeter disambung dalam litar diod pincang songsang ideal, apakah bacaan ammeter?',
+                opts: ['Maksimum', 'Sifar (0 A)', 'Separuh daripada voltan', 'Negatif Infinite'],
+                ans: 1,
+                exp: 'Diod ideal tidak membenarkan sebarang arus mengalir semasa pincang songsang.'
+            }
+        ];
+
+        function renderQuiz() {
+            const container = document.getElementById('quizContent');
+            container.innerHTML = quizQuestions.map((q, idx) => `
+                <div class="bg-navy-900 border border-navy-700 p-4 rounded-xl space-y-3">
+                    <p class="font-semibold text-sm text-white">${q.q}</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                        ${q.opts.map((opt, oIdx) => `
+                            <label class="flex items-center space-x-2 p-2 bg-navy-800 border border-navy-700 rounded-lg cursor-pointer hover:border-rose-500/50">
+                                <input type="radio" name="q_${idx}" value="${oIdx}" class="accent-rose-500">
+                                <span class="text-gray-300">${opt}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                    <div id="q_exp_${idx}" class="hidden text-xs p-2 bg-navy-950 border border-navy-800 rounded text-gray-300"></div>
+                </div>
+            `).join('');
+        }
+
+        function submitQuiz() {
+            let score = 0;
+            quizQuestions.forEach((q, idx) => {
+                const selected = document.querySelector(`input[name="q_${idx}"]:checked`);
+                const expBox = document.getElementById(`q_exp_${idx}`);
+
+                if (selected) {
+                    const val = parseInt(selected.value);
+                    if (val === q.ans) {
+                        score++;
+                        expBox.innerHTML = `<span class="text-emerald-400 font-bold">BETUL!</span> ${q.exp}`;
+                    } else {
+                        expBox.innerHTML = `<span class="text-rose-400 font-bold">SALAH.</span> Jawapan betul: ${q.opts[q.ans]}. ${q.exp}`;
+                    }
+                } else {
+                    expBox.innerHTML = `<span class="text-amber-400 font-bold">TIADA JAWAPAN.</span> Jawapan betul: ${q.opts[q.ans]}. ${q.exp}`;
+                }
+                expBox.classList.remove('hidden');
+            });
+
+            const scoreText = document.getElementById('quizScoreText');
+            scoreText.textContent = `Markah Anda: ${score} / ${quizQuestions.length} (${((score/quizQuestions.length)*100).toFixed(0)}%)`;
+            scoreText.className = 'text-base font-bold text-emerald-400';
+            
+            // Show summary screen suggestion
+            setTimeout(() => {
+                if (score >= 7) {
+                    showModule('summary');
+                }
+            }, 3000);
+        }
+
+        window.onload = function() {
+            showModule('home');
+        };
+    </script>
+</body>
+</html>
